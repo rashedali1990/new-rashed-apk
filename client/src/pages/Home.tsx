@@ -30,6 +30,7 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<ViewMode>('home');
   const [showLoadModal, setShowLoadModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const { setSearchQuery: setPlayerSearchQuery } = usePlayer();
 
   // Category cards for home view
   const categories = [
@@ -88,7 +89,10 @@ export default function Home() {
                 type="text"
                 placeholder="بحث..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setPlayerSearchQuery(e.target.value);
+                }}
                 className="bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-white/20"
               />
             </div>
