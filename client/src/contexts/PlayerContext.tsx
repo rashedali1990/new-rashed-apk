@@ -4,7 +4,7 @@
    ========================================================== */
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { Channel, M3UPlaylist, parseM3U } from '@/lib/m3u-parser';
+import { Channel, M3UPlaylist, parseM3U, categorizeChannels } from '@/lib/m3u-parser';
 
 interface PlayerContextType {
   playlist: M3UPlaylist | null;
@@ -190,14 +190,18 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-
   // Filtered channels based on search and group
   const filteredChannels = React.useMemo(() => {
     if (!playlist) return [];
     let channels = playlist.channels;
 
     if (selectedGroup !== 'الكل') {
-      channels = channels.filter(ch => ch.group === selectedGroup);
+      const categories = categorizeChannels(playlist.channels);
+      if (selectedGroup in categories) {
+        channels = categories[selectedGroup as keyof typeof categories];
+      } else {
+        channels = channels.filter(ch => ch.group === selectedGroup);
+      }
     }
 
     if (searchQuery.trim()) {
@@ -211,7 +215,6 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
     return channels;
   }, [playlist, selectedGroup, searchQuery]);
-
 
   return (
     <PlayerContext.Provider value={{
@@ -243,4 +246,3 @@ export function usePlayer() {
   if (!ctx) throw new Error('usePlayer must be used within PlayerProvider');
   return ctx;
 }
-
