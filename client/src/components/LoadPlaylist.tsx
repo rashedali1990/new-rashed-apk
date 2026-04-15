@@ -7,6 +7,7 @@ import { useState, useRef, useCallback } from 'react';
 import { usePlayer } from '@/contexts/PlayerContext';
 import { Link2, Upload, Loader2, X, Plus, Trash2, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
+import { trpc } from '@/lib/trpc';
 
 interface LoadPlaylistProps {
   onClose?: () => void;
@@ -15,11 +16,18 @@ interface LoadPlaylistProps {
 export default function LoadPlaylist({ onClose }: LoadPlaylistProps) {
   const { loadFromUrl, loadFromFile, isLoading, savedPlaylists, savePlaylist, removeSavedPlaylist } = usePlayer();
   const [url, setUrl] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [playlistName, setPlaylistName] = useState('');
   const [activeTab, setActiveTab] = useState<'url' | 'file'>('url');
   const [showSaved, setShowSaved] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
+  const [isProxyLoading, setIsProxyLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const m3uFetch = trpc.m3u.fetch.useQuery(
+    { url, username, password },
+    { enabled: false, retry: false }
+  );
 
   const handleLoadUrl = async () => {
     if (!url.trim()) {
@@ -27,14 +35,22 @@ export default function LoadPlaylist({ onClose }: LoadPlaylistProps) {
       return;
     }
     try {
-      await loadFromUrl(url.trim());
-      if (playlistName.trim()) {
-        savePlaylist(playlistName.trim(), url.trim());
+      setIsProxyLoading(true);
+      const result = await m3uFetch.refetch();
+      if (result.data?.success && result.data?.content) {
+        await loadFromUrl(result.data.content);
+        if (playlistName.trim()) {
+          savePlaylist(playlistName.trim(), url.trim());
+        }
+        toast.success('تم تحميل القائمة بنجاح');
+        onClose?.();
+      } else {
+        toast.error('فشل تحميل القائمة');
       }
-      toast.success('تم تحميل القائمة بنجاح');
-      onClose?.();
-    } catch {
-      toast.error('فشل تحميل القائمة');
+    } catch (error) {
+      toast.error('فشل تحميل القائمة: ' + (error instanceof Error ? error.message : 'خطأ غير معروف'));
+    } finally {
+      setIsProxyLoading(false);
     }
   };
 
@@ -109,6 +125,28 @@ export default function LoadPlaylist({ onClose }: LoadPlaylistProps) {
                 dir="ltr"
               />
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-white/40 mb-1.5">اسم المستخدم (اختياري)</label>
+                <input
+                  type="text"
+                  placeholder="username"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-amber-500/40 transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-white/40 mb-1.5">كلمة المرور (اختياري)</label>
+                <input
+                  type="password"
+                  placeholder="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-amber-500/40 transition-all"
+                />
+              </div>
+            </div>
             <div>
               <label className="block text-xs text-white/40 mb-1.5">اسم القائمة (اختياري — للحفظ)</label>
               <input
@@ -122,10 +160,10 @@ export default function LoadPlaylist({ onClose }: LoadPlaylistProps) {
             <button
               className="w-full py-2.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-medium text-sm rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               onClick={handleLoadUrl}
-              disabled={isLoading}
+              disabled={isLoading || isProxyLoading}
             >
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-              {isLoading ? 'جارٍ التحميل...' : 'تحميل القائمة'}
+              {isLoading || isProxyLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+              {isLoading || isProxyLoading ? 'جارٍ التحميل...' : 'تحميل القائمة'}
             </button>
           </div>
         )}
