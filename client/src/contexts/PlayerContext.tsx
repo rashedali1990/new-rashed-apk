@@ -37,6 +37,10 @@ const PlayerContext = createContext<PlayerContextType | null>(null);
 
 const STORAGE_KEY = 'm3u-player-saved-playlists';
 
+// Default M3U URL to load automatically
+const DEFAULT_M3U_URL = 'http://ddgo770.live:2095/get.php?username=pro770&password=544405320&type=m3u';
+const PROXY_ENDPOINT = '/api/trpc/m3u.fetch';
+
 export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [playlist, setPlaylist] = useState<M3UPlaylist | null>(null);
   const [currentChannel, setCurrentChannel] = useState<Channel | null>(null);
@@ -45,6 +49,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGroup, setSelectedGroup] = useState('الكل');
   const [savedPlaylists, setSavedPlaylists] = useState<SavedPlaylist[]>([]);
+  const [hasLoadedDefault, setHasLoadedDefault] = useState(false);
 
   // Load saved playlists from localStorage
   useEffect(() => {
@@ -90,6 +95,44 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
     }
   }, [loadFromText]);
+
+  // Auto-load default M3U playlist on mount
+  useEffect(() => {
+    if (!hasLoadedDefault && !playlist) {
+      setHasLoadedDefault(true);
+      setIsLoading(true);
+      setError(null);
+      
+      // Use the proxy endpoint to fetch the M3U
+      fetch(PROXY_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'm3u.fetch',
+          params: {
+            url: DEFAULT_M3U_URL,
+            username: 'pro770',
+            password: '544405320',
+          },
+        }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.result?.success && data.result?.content) {
+            loadFromText(data.result.content);
+          } else {
+            setError('فشل تحميل القائمة الافتراضية');
+          }
+        })
+        .catch(err => {
+          console.error('Auto-load error:', err);
+          setError('فشل تحميل القائمة الافتراضية');
+        })
+        .finally(() => setIsLoading(false));
+    }
+  }, [hasLoadedDefault, playlist, loadFromText]);
 
   const loadFromFile = useCallback(async (file: File) => {
     setIsLoading(true);
@@ -159,6 +202,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     return channels;
   }, [playlist, selectedGroup, searchQuery]);
 
+
   return (
     <PlayerContext.Provider value={{
       playlist,
@@ -189,3 +233,4 @@ export function usePlayer() {
   if (!ctx) throw new Error('usePlayer must be used within PlayerProvider');
   return ctx;
 }
+
