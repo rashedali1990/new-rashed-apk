@@ -8,9 +8,9 @@ import { useState } from 'react';
 import { usePlayer } from '@/contexts/PlayerContext';
 import VideoPlayer from '@/components/VideoPlayer';
 import ChannelList from '@/components/ChannelList';
-import LoadPlaylist from '@/components/LoadPlaylist';
+
 import {
-  Plus, Search, Bell, User, Settings, Grid3x3, BookOpen, Loader2,
+  Search, Bell, User, Settings, Grid3x3, BookOpen, Loader2,
   Film, Tv, Radio, Clapperboard
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
@@ -28,7 +28,6 @@ export default function Home() {
   } = usePlayer();
 
   const [viewMode, setViewMode] = useState<ViewMode>('home');
-  const [showLoadModal, setShowLoadModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { setSearchQuery: setPlayerSearchQuery } = usePlayer();
 
@@ -118,14 +117,7 @@ export default function Home() {
             </div>
           ) : !playlist ? (
             <div className="flex flex-col items-center justify-center h-full gap-4">
-              <p className="text-white/60">لم يتم تحميل قائمة M3U</p>
-              <button
-                onClick={() => setShowLoadModal(true)}
-                className="flex items-center gap-2 px-6 py-3 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 rounded-lg transition"
-              >
-                <Plus className="w-5 h-5" />
-                تحميل قائمة
-              </button>
+              <p className="text-white/60">جاري تحضير القائمة...</p>
             </div>
           ) : (
             <div className="space-y-8">
@@ -182,13 +174,7 @@ export default function Home() {
           )}
         </div>
 
-        {/* Load Playlist Modal */}
-        <Dialog open={showLoadModal} onOpenChange={setShowLoadModal}>
-          <DialogContent className="bg-[#0d0d14] border border-white/10 shadow-2xl p-0 max-w-lg overflow-hidden">
-            <DialogTitle className="sr-only">تحميل قائمة M3U</DialogTitle>
-            <LoadPlaylist onClose={() => setShowLoadModal(false)} />
-          </DialogContent>
-        </Dialog>
+
       </div>
     );
   }
@@ -211,14 +197,6 @@ export default function Home() {
         </button>
 
         <div className="flex items-center gap-4">
-          <button
-            onClick={() => setShowLoadModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 rounded-lg transition text-sm"
-          >
-            <Plus className="w-4 h-4" />
-            قائمة جديدة
-          </button>
-
           <button className="p-2 hover:bg-white/5 rounded-lg transition">
             <Bell className="w-5 h-5 text-white/60" />
           </button>
@@ -269,13 +247,7 @@ export default function Home() {
         </main>
       </div>
 
-      {/* Load Playlist Modal */}
-      <Dialog open={showLoadModal} onOpenChange={setShowLoadModal}>
-        <DialogContent className="bg-[#0d0d14] border border-white/10 shadow-2xl p-0 max-w-lg overflow-hidden">
-          <DialogTitle className="sr-only">تحميل قائمة M3U</DialogTitle>
-          <LoadPlaylist onClose={() => setShowLoadModal(false)} />
-        </DialogContent>
-      </Dialog>
+
     </div>
   );
 }
