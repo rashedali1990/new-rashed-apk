@@ -100,37 +100,46 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!hasLoadedDefault && !playlist) {
       setHasLoadedDefault(true);
-      setIsLoading(true);
-      setError(null);
       
-      // Use the proxy endpoint to fetch the M3U
-      fetch(PROXY_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 1,
-          method: 'm3u.fetch',
-          params: {
-            url: DEFAULT_M3U_URL,
-            username: 'pro770',
-            password: '544405320',
-          },
-        }),
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.result?.success && data.result?.content) {
-            loadFromText(data.result.content);
-          } else {
+      // Delay auto-load to allow backend to initialize
+      const timer = setTimeout(() => {
+        setIsLoading(true);
+        setError(null);
+        
+        // Use the proxy endpoint to fetch the M3U
+        fetch(PROXY_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'm3u.fetch',
+            params: {
+              url: DEFAULT_M3U_URL,
+              username: 'pro770',
+              password: '544405320',
+            },
+          }),
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.result?.success && data.result?.content) {
+              loadFromText(data.result.content);
+            } else if (data.error) {
+              console.error('M3U Fetch error:', data.error);
+              setError('فشل تحميل القائمة الافتراضية');
+            } else {
+              setError('فشل تحميل القائمة الافتراضية');
+            }
+          })
+          .catch(err => {
+            console.error('Auto-load error:', err);
             setError('فشل تحميل القائمة الافتراضية');
-          }
-        })
-        .catch(err => {
-          console.error('Auto-load error:', err);
-          setError('فشل تحميل القائمة الافتراضية');
-        })
-        .finally(() => setIsLoading(false));
+          })
+          .finally(() => setIsLoading(false));
+      }, 2000); // Wait 2 seconds for backend to initialize
+      
+      return () => clearTimeout(timer);
     }
   }, [hasLoadedDefault, playlist, loadFromText]);
 
@@ -180,6 +189,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       return updated;
     });
   }, []);
+
 
   // Filtered channels based on search and group
   const filteredChannels = React.useMemo(() => {
