@@ -50,13 +50,13 @@ export default function Home() {
         {/* Logo */}
         <div className="flex items-center gap-2.5">
           <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663557082629/PLrrf7EdHcKwZ5bUqaPQKn/logo-icon-MPHXFpqZQPytCarjLcgj8a.webp"
-            alt="M3U Player"
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663557082629/PLrrf7EdHcKwZ5bUqaPQKn/rashid-logo-goNJuaK9VUiStJCUZnpPP5.webp"
+            alt="مشغل راشد"
             className="w-7 h-7 object-contain"
           />
           <div className="hidden sm:block">
-            <span className="text-white font-bold text-base tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              M3U<span className="text-amber-400">Player</span>
+            <span className="text-white font-bold text-base tracking-tight" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+              مشغل <span className="text-amber-400">راشد</span>
             </span>
           </div>
         </div>
@@ -222,14 +222,14 @@ function WelcomeScreen({ onLoad }: { onLoad: () => void }) {
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center gap-6 text-center max-w-md">
         <img
-          src="https://d2xsxph8kpxj0f.cloudfront.net/310519663557082629/PLrrf7EdHcKwZ5bUqaPQKn/logo-icon-MPHXFpqZQPytCarjLcgj8a.webp"
-          alt="M3U Player"
+          src="https://d2xsxph8kpxj0f.cloudfront.net/310519663557082629/PLrrf7EdHcKwZ5bUqaPQKn/rashid-logo-goNJuaK9VUiStJCUZnpPP5.webp"
+          alt="مشغل راشد"
           className="w-20 h-20 object-contain"
         />
 
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-            M3U<span className="text-amber-400">Player</span>
+          <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+            مشغل <span className="text-amber-400">راشد</span>
           </h1>
           <p className="text-white/50 text-base leading-relaxed">
             مشغل IPTV احترافي يدعم قوائم M3U وM3U8
