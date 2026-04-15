@@ -13,11 +13,15 @@ interface LoadPlaylistProps {
   onClose?: () => void;
 }
 
+// Default credentials
+const DEFAULT_USERNAME = 'pro770';
+const DEFAULT_PASSWORD = '544405320';
+
 export default function LoadPlaylist({ onClose }: LoadPlaylistProps) {
   const { loadFromUrl, loadFromFile, isLoading, savedPlaylists, savePlaylist, removeSavedPlaylist } = usePlayer();
   const [url, setUrl] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState(DEFAULT_USERNAME);
+  const [password, setPassword] = useState(DEFAULT_PASSWORD);
   const [playlistName, setPlaylistName] = useState('');
   const [activeTab, setActiveTab] = useState<'url' | 'file'>('url');
   const [showSaved, setShowSaved] = useState(true);
@@ -127,7 +131,7 @@ export default function LoadPlaylist({ onClose }: LoadPlaylistProps) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs text-white/40 mb-1.5">اسم المستخدم (اختياري)</label>
+                <label className="block text-xs text-white/40 mb-1.5">اسم المستخدم</label>
                 <input
                   type="text"
                   placeholder="username"
@@ -137,7 +141,7 @@ export default function LoadPlaylist({ onClose }: LoadPlaylistProps) {
                 />
               </div>
               <div>
-                <label className="block text-xs text-white/40 mb-1.5">كلمة المرور (اختياري)</label>
+                <label className="block text-xs text-white/40 mb-1.5">كلمة المرور</label>
                 <input
                   type="password"
                   placeholder="password"
