@@ -11,7 +11,7 @@ import ChannelList from '@/components/ChannelList';
 import LoadPlaylist from '@/components/LoadPlaylist';
 import {
   Plus, List, X, ChevronRight, ChevronLeft,
-  Radio, Layers
+  Radio, Layers, Loader2
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 
@@ -22,6 +22,7 @@ export default function Home() {
     filteredChannels,
     playChannel,
     clearPlaylist,
+    isLoading,
   } = usePlayer();
 
   const [showLoadModal, setShowLoadModal] = useState(false);
@@ -72,6 +73,14 @@ export default function Home() {
           </div>
         )}
 
+        {/* Loading indicator */}
+        {isLoading && (
+          <div className="flex items-center gap-2 mr-2">
+            <Loader2 className="w-4 h-4 text-amber-400 animate-spin" />
+            <span className="text-white/50 text-xs">جاري التحميل...</span>
+          </div>
+        )}
+
         {/* Spacer */}
         <div className="flex-1" />
 
@@ -112,10 +121,10 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Welcome / No Playlist */}
-        {!playlist ? (
-          <WelcomeScreen onLoad={() => setShowLoadModal(true)} />
-        ) : (
+        {/* Show loading state or player */}
+        {isLoading && !playlist ? (
+          <LoadingScreen />
+        ) : playlist ? (
           <>
             {/* Sidebar — Channel List */}
             {showSidebar && (
@@ -190,6 +199,8 @@ export default function Home() {
               </div>
             </main>
           </>
+        ) : (
+          <EmptyState onLoad={() => setShowLoadModal(true)} />
         )}
       </div>
 
@@ -204,8 +215,35 @@ export default function Home() {
   );
 }
 
-/* Welcome screen shown when no playlist is loaded */
-function WelcomeScreen({ onLoad }: { onLoad: () => void }) {
+/* Loading screen shown while fetching playlist */
+function LoadingScreen() {
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center p-8 relative overflow-hidden">
+      {/* Background */}
+      <div
+        className="absolute inset-0 opacity-10"
+        style={{
+          backgroundImage: `url(https://d2xsxph8kpxj0f.cloudfront.net/310519663557082629/PLrrf7EdHcKwZ5bUqaPQKn/hero-bg-EaXFpnJ6oDpc8bq53EQYaf.webp)`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0d0d14]/60 to-[#0d0d14]" />
+
+      {/* Content */}
+      <div className="relative z-10 flex flex-col items-center gap-6 text-center">
+        <Loader2 className="w-16 h-16 text-amber-400 animate-spin" />
+        <div>
+          <p className="text-white/70 text-lg font-medium">جاري تحميل القائمة...</p>
+          <p className="text-white/40 text-sm mt-2">يرجى الانتظار</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Empty state shown when no playlist is loaded */
+function EmptyState({ onLoad }: { onLoad: () => void }) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-8 relative overflow-hidden">
       {/* Background */}
